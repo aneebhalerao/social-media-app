@@ -21,8 +21,8 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
     producer:
-      key-deserializer: org.apache.kafka.common.serialization.StringSerializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.add.type.headers: false
     consumer:
@@ -33,6 +33,7 @@ spring:
       properties:
           spring.json.trusted.packages: "com.meet5.*"
           spring.json.use.type.headers: false
+          spring.json.value.default.type: com.meet5.fraudservice.dto.ActionEvent
 
   threads:
     virtual:
@@ -54,3 +55,9 @@ management:
   endpoint:
     health:
       show-details: always
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

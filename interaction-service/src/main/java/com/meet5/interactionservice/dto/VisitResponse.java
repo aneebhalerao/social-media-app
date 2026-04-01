@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public record VisitResponse(
         UUID visitorId,
-        UUID visitId,
+        UUID visitedId,
         int visitCount,
         Instant lastVisitAt) {
 }

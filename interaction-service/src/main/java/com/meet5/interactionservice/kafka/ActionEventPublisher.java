@@ -18,11 +18,11 @@ public class ActionEventPublisher {
     }
 
     public void publishVisit(UUID visitorID) {
-        publish(visitorID,"visit");
+        publish(visitorID,"VISIT");
     }
 
     public void publishLike(UUID likerId) {
-        publish(likerId,"like");
+        publish(likerId,"LIKE");
     }
 
     public void publish(UUID userId, String actionType) {

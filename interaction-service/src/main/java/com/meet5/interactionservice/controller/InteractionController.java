@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/interaction")
+@RequestMapping("/api/v1/interactions")
 public class InteractionController {
 
     private final InteractionService interactionService;
@@ -32,7 +32,7 @@ public class InteractionController {
     }
 
     @PostMapping("/like")
-    public ResponseEntity<LikeResponse> recordLike(@RequestBody LikeRequest likeRequest) {
+    public ResponseEntity<LikeResponse> recordLike(@Valid @RequestBody LikeRequest likeRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(interactionService.recordLike(likeRequest));
     }
 

@@ -9,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -44,6 +45,18 @@ public class GlobalExceptionHandler {
                         request.getRequestURI(),
                         Instant.now()
                 ));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e, HttpServletRequest request) {
+        LOGGER.error("Method argument type mismatch: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                "BAD_REQUEST",
+                e.getMessage(),
+                request.getRequestURI(),
+                Instant.now()
+        ));
     }
 
     @ExceptionHandler(Exception.class)

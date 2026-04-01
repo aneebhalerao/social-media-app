@@ -11,7 +11,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/fraud")
+@RequestMapping("/api/v1/frauds")
 @Tag(name = "Fraud", description = "Fraud detection and status")
 public class FraudController {
     private final FraudDetectionService fraudDetectionService;

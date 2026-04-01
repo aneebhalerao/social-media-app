@@ -1,0 +1,157 @@
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          # ── CORS ──────────────────────────────────────────────────
+          globalcors:
+            add-to-simple-url-handler-mapping: true
+            cors-configurations:
+              '[/**]':
+                allowedOriginPatterns: "*"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders: "*"
+                allowCredentials: false
+                maxAge: 3600
+
+          # ── Routes ────────────────────────────────────────────────
+          routes:
+
+            - id: user-service
+              uri: http://localhost:8081
+              predicates:
+                - Path=/api/v1/users/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: user-service
+                    fallbackUri: forward:/fallback/user-service
+
+            - id: user-service-docs
+              uri: http://localhost:8081
+              predicates:
+                - Path=/user-service/api-docs/**
+              filters:
+                - RewritePath=/user-service/api-docs(?<segment>.*), /api-docs$\{segment}
+
+            - id: interaction-service
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/v1/interactions/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: interaction-service
+                    fallbackUri: forward:/fallback/interaction-service
+
+            - id: interaction-service-docs
+              uri: http://localhost:8082
+              predicates:
+                - Path=/interaction-service/api-docs/**
+              filters:
+                - RewritePath=/interaction-service/api-docs(?<segment>.*), /api-docs$\{segment}
+
+            - id: fraud-service
+              uri: http://localhost:8083
+              predicates:
+                - Path=/api/v1/frauds/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: fraud-service
+                    fallbackUri: forward:/fallback/fraud-service
+
+            - id: fraud-service-docs
+              uri: http://localhost:8083
+              predicates:
+                - Path=/fraud-service/api-docs/**
+              filters:
+                - RewritePath=/fraud-service/api-docs(?<segment>.*), /api-docs$\{segment}
+
+  # WebFlux timeout settings
+  webflux:
+    timeout: 5s
+
+server:
+  port: ${SERVER_PORT:8080}
+
+# Fraud check config
+fraud:
+  service:
+    url: http://localhost:8083
+  header:
+    name: X-User-Id
+
+# Resilience4j circuit breaker config
+resilience4j:
+  circuitbreaker:
+    instances:
+      user-service:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+      interaction-service:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+      fraud-service:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+  timelimiter:
+    instances:
+      user-service:
+        timeoutDuration: 5s
+      interaction-service:
+        timeoutDuration: 5s
+      fraud-service:
+        timeoutDuration: 5s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+  health:
+    circuitbreakers:
+      enabled: true
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: user-service
+        url: user-service/api-docs
+      - name: interaction-service
+        url: interaction-service/api-docs
+      - name: fraud-service
+        url: fraud-service/api-docs
+
+logging:
+  level:
+    com.meet5.apigateway: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web: WARN

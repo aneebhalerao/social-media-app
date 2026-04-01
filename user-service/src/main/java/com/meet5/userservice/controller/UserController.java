@@ -1,5 +1,6 @@
 package com.meet5.userservice.controller;
 
+import com.meet5.userservice.dto.BulkInsertResponse;
 import com.meet5.userservice.dto.UserRequest;
 import com.meet5.userservice.dto.UserResponse;
 import com.meet5.userservice.service.UserService;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -43,5 +45,15 @@ public class UserController {
     public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id) {
         UserResponse userResponse = userService.getUserById(id);
         return ResponseEntity.ok(userResponse);
+    }
+
+    @PostMapping("/bulk")
+    @Operation(
+            summary = "Bulk insert users",
+            description = "Inserts user profiles in one request. Duplicate usernames are skipped."
+    )
+    public ResponseEntity<BulkInsertResponse> bulkInsertUsers( @RequestBody List<@Valid UserRequest> userRequests) {
+        BulkInsertResponse response = userService.bulkCreateUsers(userRequests);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

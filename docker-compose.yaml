@@ -85,3 +85,17 @@ volumes:
   interaction-pgdata:
   fraud-pgdata:
   redis_data:
+
+
+
+# Port map: this is a reminder
+#   api-gateway         → 8080
+#   user-service        → 8081
+#   interaction-service → 8082
+#   fraud-service       → 8083
+#   user-postgres       → 5432
+#   interaction-postgres→ 5433
+#   fraud-postgres      → 5434
+#   redis               → 6379
+#   kafka               → 9092
+#   kafka-ui            → 8090

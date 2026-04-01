@@ -5,10 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -31,7 +33,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateUsernameException.class)
     public ResponseEntity<APIError> handleDuplicateUsernameException(DuplicateUsernameException e, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 new APIError(HttpStatus.CONFLICT.value(),
                         "USERNAME_ALREADY_EXISTS",
                         e.getMessage(),
@@ -41,10 +43,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<APIError> handleValidationFailed(
-            MethodArgumentNotValidException ex,
-            HttpServletRequest request
-    ) {
+    public ResponseEntity<APIError> handleValidationFailed(MethodArgumentNotValidException ex, HttpServletRequest request) {
         Map<String, String> fieldErrors = new HashMap<>();
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             fieldErrors.put(error.getField(), error.getDefaultMessage());
@@ -61,6 +60,32 @@ public class GlobalExceptionHandler {
                         Instant.now()
                 )
         );
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<APIError> handleMissingBodyException(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new APIError(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "VALIDATION_FAILED",
+                        "HTTP MESSAGE MISSING",
+                        request.getRequestURI(),
+                        Instant.now()
+                )
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<APIError> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e, HttpServletRequest request) {
+        LOGGER.error("Method argument type mismatch: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new APIError(
+                HttpStatus.BAD_REQUEST.value(),
+                "BAD_REQUEST",
+                e.getMessage(),
+                request.getRequestURI(),
+                Instant.now()
+        ));
     }
 
     @ExceptionHandler(Exception.class)
