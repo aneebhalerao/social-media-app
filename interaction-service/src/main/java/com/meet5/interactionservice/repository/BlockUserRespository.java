@@ -18,7 +18,7 @@ public class BlockUserRespository {
     public void blockUser(UUID userId) {
         jdbcClient.sql("""
                 INSERT INTO blocked_users(user_id, blocked_at) VALUES 
-                (:userid, now())
+                (:userId, now())
                 ON CONFLICT (user_id) DO NOTHING
                 """)
                 .param("userId", userId)

@@ -5,10 +5,12 @@ import com.meet5.interactionservice.repository.BlockUserRespository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.UUID;
 
+@Component
 public class FraudEventConsumer {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     private final BlockUserRespository blockUserRespository;
