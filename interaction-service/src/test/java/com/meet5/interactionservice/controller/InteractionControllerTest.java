@@ -111,9 +111,6 @@ class InteractionControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-
-    // ── POST /api/v1/interactions/like ────────────────────────────
-
     @Test
     @DisplayName("should return 201 for new like")
     void shouldReturn201ForNewLike() throws Exception {
@@ -170,9 +167,6 @@ class InteractionControllerTest {
                                 """.formatted(likedId)))
                 .andExpect(status().isBadRequest());
     }
-
-
-    // ── GET /api/v1/interactions/{userId}/visitors ────────────────
 
     @Test
     @DisplayName("should return 200 with visitors list")
